@@ -25,27 +25,34 @@ if [ -z "$interfaz" ]; then
     exit 1
 fi
 
-# Realizar el escaneo ARP y obtener la IP y MAC de la máquina
-result=$(sudo arp-scan -I $interfaz --localnet --ignoredups)
+# Obtener la MAC de la interfaz de red especificada
+mi_mac=$(ifconfig $interfaz | awk '/ether/{print $2}')
+
+# Realizar el escaneo ARP y obtener la IP y MAC de las máquinas
+result=$(sudo arp-scan -I $interfaz --localnet --ignoredups | grep -v "$mi_mac" | grep -E '00:0c|08:00')
 
 # Extraer la IP y MAC
-ip=$(echo "$result" | grep -oP '\d+\.\d+\.\d+\.\d+' | head -n 1)
-mac=$(echo "$result" | grep -oP '([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})' | head -n 1)
+while IFS= read -r line; do
+    ip=$(echo "$line" | awk '{print $1}')
+    mac=$(echo "$line" | awk '{print $2}')
 
-if [ -z "$ip" ] || [ -z "$mac" ]; then
-    printf "${RED}[+] No se encontraron máquinas virtuales para analizar.${RESET}\n"
-    exit 1
-fi
+    printf "${GREEN}[+] La IP de la máquina es ${RED}$ip${RESET}\n"
+    printf "${GREEN}[+] La MAC de la máquina es ${RED}$mac${RESET}\n"
 
-printf "${GREEN}[+] La IP de la máquina es ${RED}$ip${RESET}\n"
-printf "${GREEN}[+] La MAC de la máquina es ${RED}$mac${RESET}\n"
+    # Realizar un ping a la IP para obtener el TTL
+    ttl_value=$(ping -c1 $ip | grep 'ttl' | awk '{print $6}' | cut -d '=' -f 2)
 
-# Realizar un ping a la IP para obtener el TTL
-ttl_value=$(ping -c1 $ip | grep 'ttl' | awk '{print $6}' | cut -d '=' -f 2)
-
-# Verificar el sistema operativo basado en el TTL
-if [ "$ttl_value" -eq 64 ]; then
-    printf "${GREEN}[+] El sistema operativo es ${RED}Linux${RESET}\n"
-else
-    printf "${GREEN}[+] El sistema operativo es ${RED}Windows o podría ser otra plataforma${RESET}\n"
-fi
+    # Verificar el sistema operativo basado en el TTL
+    if [ -z "$ttl_value" ]; then
+        printf "${RED}[+] Error al obtener el TTL para $ip.${RESET}\n"
+    else
+        if [ "$ttl_value" -eq 64 ]; then
+            printf "${GREEN}[+] El sistema operativo de $ip es ${RED}Linux${RESET}\n"
+        else
+            printf "${GREEN}[+] El sistema operativo de $ip es ${RED}Windows o podría ser otra plataforma${RESET}\n"
+        fi
+    fi
+    
+    # Separar las entradas con una línea en blanco
+    printf "\n"
+done <<< "$result"
