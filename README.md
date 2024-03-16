@@ -11,7 +11,8 @@ A Bash script for scanning the local network to identify machines, retrieve thei
 
 ## Usage
 1. Clone the repository.
-2. Run the script and follow the prompts.
+2. chmod +x barrido.sh
+3. Run the script and follow the prompts.
 
 Feel free to contribute or adapt the script to suit your needs.
 

@@ -90,7 +90,7 @@ for interfaz in "${interface_array[@]}"; do
                     # Realizar un escaneo básico con Nmap
                     resultado_nmap=$(sudo nmap -sSCV -n -Pn --min-rate 5000 -p- --open $ip)
                     printf "${GREEN}[+] Resultado del escaneo Nmap para ${RED}$ip${RESET}:\n$resultado_nmap\n"
-                    printf "${GREEN}[+] Escaneo de nmap finalizado\n"
+                    printf "${GREEN}[+] Escaneo de Nmap finalizado\n"
                     printf "\n"  # Añadir espacio después del escaneo Nmap
                 elif [ "$respuesta" == "n" ]; then
                     printf "${GREEN}[+] No se realizó escaneo para ${RED}$ip${RESET}\n"
@@ -110,7 +110,7 @@ for interfaz in "${interface_array[@]}"; do
                     # Realizar un escaneo básico con Nmap
                     resultado_nmap=$(sudo nmap -sSCV -n -Pn --min-rate 5000 -p- --open $ip)
                     printf "${GREEN}[+] Resultado del escaneo Nmap para ${RED}$ip${RESET}:\n$resultado_nmap\n"
-                    printf "${GREEN}[+] Escaneo de nmap finalizado\n"
+                    printf "${GREEN}[+] Escaneo de Nmap finalizado\n"
                     printf "\n"  # Añadir espacio después del escaneo Nmap
                 elif [ "$respuesta" == "n" ]; then
                     printf "${GREEN}[+] No se realizó escaneo para ${RED}$ip${RESET}\n"
